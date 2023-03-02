@@ -14,5 +14,8 @@ jobs:
         with:
           packages: nixos-generators
           script: |
-            ls -a
-            nixos-generate -f proxmox-lxc -c ./configuration.nix
+            nixos-generate -f proxmox-lxc -c ./configuration.nix | { read path ; echo "artifactPath=$path"; } >> $GITHUB_ENV
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifact
+          path: ${{ env.artifactPath }}
