@@ -1,7 +1,10 @@
 name: 'generate-lxc'
+
 on:
-  pull_request:
   push:
+    tags:
+      - 'v*.*.*'
+
 jobs:
   generate:
     runs-on: ubuntu-latest
