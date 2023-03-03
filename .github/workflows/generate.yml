@@ -1,10 +1,12 @@
 name: 'generate-lxc'
 
+# build only when new version tags are pushed
 on:
   push:
     tags:
       - 'v*.*.*'
 
+# softprops/action-gh-release@v1 needs these permissions
 permissions:
   contents: write
 
@@ -13,15 +15,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - uses: cachix/install-nix-action@v19
+        # not using flakes because it was crashing, see previous workflow logs
         with:
           nix_path: nixpkgs=channel:nixos-unstable
+
       - uses: workflow/nix-shell-action@v3
         with:
           packages: nixos-generators
-          script: |
-            # nixos-generate echoes a path to the tarball which is saved in $GITHUB_ENV
-            nixos-generate -f proxmox-lxc -c ./configuration.nix | { read path ; echo "buildPath=$path"; } >> $GITHUB_ENV
+          # nixos-generate echoes a path to the tarball which is saved in $GITHUB_ENV
+          script: nixos-generate -f proxmox-lxc -c ./configuration.nix | { read path ; echo "buildPath=$path"; } >> $GITHUB_ENV
+
       - uses: softprops/action-gh-release@v1
         with:
-          files: ${{ env.buildPath }}
+          files: ${{ env.buildPath }} # this is the build path saved in the previous step to $GITHUB_ENV
