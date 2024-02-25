@@ -1,10 +1,10 @@
 name: 'generate-lxc'
 
-# build only when new version tags are pushed
+# build only on new version tags with hostname suffix
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*.*.*-*'
 
 # softprops/action-gh-release@v1 needs these permissions
 permissions:
@@ -14,19 +14,33 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: cachix/install-nix-action@v19
-        # not using flakes because it was crashing, see previous workflow logs
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
+      - name: Extract hostname
+        run: echo "HOSTNAME=${GITHUB_REF#refs/tags/*-}" >> $GITHUB_ENV
 
-      - uses: workflow/nix-shell-action@v3
+      - name: Install nix
+        uses: cachix/install-nix-action@v24
         with:
-          packages: nixos-generators
-          # nixos-generate echoes a path to the tarball which is saved in $GITHUB_ENV
-          script: nixos-generate -f proxmox-lxc -c ./configuration.nix | { read path ; echo "buildPath=$path"; } >> $GITHUB_ENV
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: softprops/action-gh-release@v1
+      - name: Generate NixOS configuration
+        # run generator from flake with the configuration specified by the hostname
+        run: |
+          nix run github:nix-community/nixos-generators -- -f proxmox-lxc --flake .#${{ env.HOSTNAME }} | {
+            read path
+            echo "BUILD_PATH=$path" >> $GITHUB_ENV
+          }
+
+      - name: Prepend hostname to file name
+        # Copy to working directory because we don't have permissions to change the file name in /nix/store
+        run: |
+          NEW_FILENAME="${{ env.HOSTNAME }}-$(basename ${{ env.BUILD_PATH }})"
+          RELEASE_PATH="${{ github.workspace }}/$NEW_FILENAME"
+          cp "${{ env.BUILD_PATH }}" "$RELEASE_PATH"
+          echo "RELEASE_PATH=$RELEASE_PATH" >> $GITHUB_ENV
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          files: ${{ env.buildPath }} # this is the build path saved in the previous step to $GITHUB_ENV
+          files: ${{ env.RELEASE_PATH }}
