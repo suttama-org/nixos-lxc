@@ -8,6 +8,7 @@ NixOS LXC template for proxmox virtual environment
 
 - `hostname` corresponds to the NixOS hostnames in `flake.nix` eg. `dns` or `samba`.
 - make sure to add your SSH public key to `keys.nix` as `PasswordAuthentication` is disabled
+  - the key should have an identifier at the end (should be default `ssh-keygen` behaviour)
 
 ### New LXC
 
