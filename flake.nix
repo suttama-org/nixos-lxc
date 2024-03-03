@@ -16,6 +16,15 @@
           ./nixos/dns.nix
         ];
       };
+
+      "netbox" = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          "${nixpkgs}/nixos/modules/virtualisation/proxmox-lxc.nix"
+          ./nixos
+          ./nixos/netbox.nix
+        ];
+      };
     };
   };
 }
