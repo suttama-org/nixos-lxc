@@ -10,5 +10,6 @@
   services.netbox = {
     enable = true;
     secretKeyFile = "/var/lib/netbox/secret-key-file";
+    listenAddress = "0.0.0.0";
   };
 }
