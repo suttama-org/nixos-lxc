@@ -2,7 +2,7 @@
 # see the above link for a complete setup with reverse proxy
 
 {
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  networking.firewall.allowedTCPPorts = [ 80 443 8001 ];
 
   services.netbox = {
     enable = true;
