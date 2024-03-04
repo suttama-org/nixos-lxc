@@ -1,4 +1,4 @@
-{
+{ pkgs, ... }: {
   system.stateVersion = "24.05";
   time.timeZone = "America/Toronto";
 
@@ -34,4 +34,9 @@
         StrictHostKeyChecking accept-new
     '';
   };
+
+  environment.systemPackages = [
+    # Logfile Navigator see https://lnav.org/
+    pkgs.lnav
+  ];
 }
