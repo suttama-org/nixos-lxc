@@ -19,9 +19,6 @@
     enable = true;
     user = "netbox";
     recommendedTlsSettings = false;
-    recommendedGzipSettings = true;
-    recommendedOptimisationSettings = true;
-    recommendedProxySettings = true;
     clientMaxBodySize = "25m";
 
     virtualHosts = {
