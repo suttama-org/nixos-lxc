@@ -10,13 +10,20 @@
   services.netbox = {
     enable = true;
     secretKeyFile = "/var/lib/netbox/secret-key-file";
+    settings = {
+      PREFER_IPV4 = true;
+    };
   };
 
   services.nginx = {
     enable = true;
     user = "netbox";
     recommendedTlsSettings = false;
+    recommendedGzipSettings = true;
+    recommendedOptimisationSettings = true;
+    recommendedProxySettings = true;
     clientMaxBodySize = "25m";
+
     virtualHosts = {
       "192.168.1.13" = {
         listen = [
@@ -31,7 +38,7 @@
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
               proxy_set_header X-Forwarded-Proto $scheme;
-              proxy_cookie_path / "/; HTTPOnly; Secure";
+              proxy_cookie_path / "/; HTTPOnly";
             '';
           };
           "/static/" = {
