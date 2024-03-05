@@ -13,6 +13,11 @@
     settings = {
       PREFER_IPV4 = true;
     };
+    extraConfig = ''
+      CSRF_TRUSTED_ORIGINS = (
+        'http://192.168.1.13:8001',
+      )
+    '';
   };
 
   services.nginx = {
